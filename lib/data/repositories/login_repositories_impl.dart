@@ -1,45 +1,41 @@
 
+// import 'dart:convert';
+// import 'package:http/http.dart' as http;
 // import '../../domain/entities/login_entity.dart';
 // import '../../domain/repositories/login_repository.dart';
 
 // class AuthRepositoryImpl implements AuthRepository {
 //   @override
 //   Future<LoginEntity> login(String email, String password) async {
-//     // Mocked response – replace this with real API logic using Dio or http
-//     await Future.delayed(const Duration(seconds: 2)); // simulate delay
+//     final response = await http.post(
+//       Uri.parse('https://reqres.in/api/login'),
+//       body: {
+//         'email': email,
+//         'password': password,
+//       },
+//     );
 
-//     if (email == "test@example.com" && password == "123456") {
-//       return LoginEntity(token: "mock_token_123");
+//     if (response.statusCode == 200) {
+//       final data = json.decode(response.body);
+//       return LoginEntity(token: data['token']);
 //     } else {
-//       throw Exception("Invalid email or password");
+//       throw Exception('Login failed: ${response.body}');
 //     }
 //   }
 // }
 
 
 
-// data/repositories/auth_repository_impl.dart
-import 'dart:convert';
-import 'package:http/http.dart' as http;
-import '../../domain/entities/login_entity.dart';
+
 import '../../domain/repositories/login_repository.dart';
+import '../data_sources/login_data_sources.dart';
+import '../models/login_model.dart';
 
 class AuthRepositoryImpl implements AuthRepository {
-  @override
-  Future<LoginEntity> login(String email, String password) async {
-    final response = await http.post(
-      Uri.parse('https://reqres.in/api/login'),
-      body: {
-        'email': email,
-        'password': password,
-      },
-    );
+  final AuthRemoteDataSource remoteDataSource = AuthRemoteDataSource();
 
-    if (response.statusCode == 200) {
-      final data = json.decode(response.body);
-      return LoginEntity(token: data['token']);
-    } else {
-      throw Exception('Login failed: ${response.body}');
-    }
+  @override
+  Future<String> login(LoginModel loginModel) async {
+    return await remoteDataSource.login(loginModel);
   }
 }
